@@ -1,0 +1,417 @@
+<html>
+
+<head>
+
+	<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+	<script>
+	  // Initialize Firebase
+	  var config = {
+	    apiKey: "AIzaSyAbBuLS3vhjefXrnrAmJDAC09TTVi6T8lo",
+	    authDomain: "ford-rsdl.firebaseapp.com",
+	    databaseURL: "https://ford-rsdl.firebaseio.com",
+	    storageBucket: "ford-rsdl.appspot.com",
+	  };
+	  firebase.initializeApp(config);
+	</script>
+</head>
+
+<body>
+
+<form>
+Passenger Name: <input type="text" name="name" id="nameInput" value="John"><br>
+</form>
+<button onclick="addNewCar()">
+	DEBUG: Add car
+</button>
+<button id="findCar" onclick="findCars()">
+	View Available Cars
+</button>
+<br><br>
+
+<p id="carsHolder" style="display:none">
+
+	Available Cars:
+	<p id="selectCars">
+
+	</p>
+	<button id="chooseCar" style="display:none" onclick="chooseCar()">Choose Car</button>
+</p>
+
+
+<br><br>
+
+<button id="disconnectCar" style="display:none" onclick="disconnectPassenger()">Disembark Car</button>
+</p>
+
+<br>
+<p id="settings" style="display:none">
+  <div id="temp" style="display:none"></div><br>
+  <div id="fanSpeed" style="display:none"></div><br>
+  <div id="AC" style="display:none"></div><br>
+  <div id="recirc" style="display:none"></div><br>
+  <br>
+  <div id="band"></div><br>
+  <div id="station"></div><br>
+</p>
+<br>
+<p id="command" style="display:none">
+	<b>Climate</b><br>
+
+	<input type="checkbox" name="checkFan" id="checkFan" value="checkFan">
+		Fan Speed: <input type="range" name="fanSpeed" id="fanSpeed" min="1" max="7" onchange="updateSlider()"><br>
+	<input type="checkbox" name="checkTemp" id="checkTemp" value="checkTemp">
+		Temperature in C: <input type="number" name="temp" id="temp" value="26.5"><br>
+	<input type="checkbox" name="checkAC" id="checkAC" value="checkAC">
+    Air conditioning: 
+      <input type="radio" id="acON" name="radio">ON
+      <input type="radio" id="acOFF" name="radio">OFF<br>
+	<input type="checkbox" name="checkRecirc" id="checkRecirc" value="checkRecirc">
+    Recirculate: 
+      <input type="radio" id="recircON" name="recirc">ON
+      <input type="radio" id="recircOFF" name="recirc">OFF<br>
+	<button onclick="pushClimateCommand()">
+	Set climate
+	</button>
+
+	<br><br>
+	
+  <b>Radio</b><br>
+
+  <input type="checkbox" name="checkBand" id="checkBand" value="checkBand">
+    RadioBand: <select name="band" id="band">
+                <option value="AM">AM</option>
+                <option value="FM" selected="selected">FM</option>
+                <option value="XM">XM</option>
+                </select>
+    <br>
+  <input type="checkbox" name="checkStation" id="checkStation" value="checkStation">
+    Station: <input type="number" name="station" id="station" value="101.3"><br>
+  <button onclick="pushRadioCommand()">
+  Set radio
+  </button>
+
+</p>
+
+<div id="feedback"></div>
+
+<script type="text/javascript">
+var globalCarKey = "";
+var globalSecret = "";
+var firstTime = true;
+var savedPassengerKey = "";
+
+function addNewCar() {
+  var name = "bob";
+  var car = "gt";
+  var postData = {
+    available: true,
+    name: name,
+    car: car
+  };
+
+  // Get a key for a new Post.
+  var newPostKey = firebase.database().ref().child('cars').push().key;
+
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  var updates = {};
+  updates['/cars/' + newPostKey] = postData;
+  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+
+  document.getElementById("feedback").innerHTML = "Added new car for " + name + " in a " + car;
+  createCookie('carKey',newPostKey,1);
+  document.getElementById("command").style = "display:inline";
+  return firebase.database().ref().update(updates);
+}
+
+function findCars(){
+  var availableCars = false;
+
+	firebase.database().ref('/cars/').once('value').then(function(snapshot) {
+	  var cars = snapshot.val();
+
+		var selectElement = document.createElement("SELECT");
+    	selectElement.setAttribute("id", "mySelect");
+    	document.getElementById("selectCars").appendChild(selectElement);
+
+	  for (var key in cars){
+	  	var carDict = cars[key];
+	  	var z = document.createElement("option");
+
+	    var str = carDict["name"] + ", " + carDict["car"];
+	    if (carDict["available"] == true){
+	    	str = str + ", " + "available";
+        availableCars = true;
+        z.setAttribute("value", key);
+        var t = document.createTextNode(str);
+        z.appendChild(t);
+        document.getElementById("mySelect").appendChild(z);
+
+	    }
+	    else{
+	    	str = str + ", " + "not available";
+	    	z.setAttribute("disabled", true);
+	    }
+	    
+	  }
+
+    if (availableCars){
+         document.getElementById("carsHolder").setAttribute("style", "display:inline");
+         document.getElementById("chooseCar").setAttribute("style", "display:inline");
+         document.getElementById("findCar").setAttribute("style", "display:none");
+      }
+      else{
+        document.getElementById("selectCars").innerHTML = "No available rides";
+      }
+	});
+}
+
+function chooseCar() {
+    var selectedCarKey = document.getElementById("mySelect").value;
+    var name = document.getElementById("nameInput").value;
+    createCookie('carKey', selectedCarKey, 1);
+    globalCarKey = selectedCarKey;
+
+    var newPassengerKey = firebase.database().ref().child('cars/' + selectedCarKey + '/passengers').push().key;
+    var postData = {
+      passenger_name: name,
+      passenger_type: "web"
+    };
+    var updates = {};
+    updates['/cars/' + selectedCarKey + '/passengers/' + newPassengerKey] = postData;
+    
+    document.getElementById("feedback").appendChild(document.createElement("br"));
+    document.getElementById("feedback").appendChild(document.createTextNode("Added new passenger, " + name));
+    document.getElementById("feedback").appendChild(document.createElement("br"));
+    document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
+    document.getElementById("chooseCar").setAttribute("style", "display:none");
+    document.getElementById("disconnectCar").setAttribute("style", "display:inline");
+
+    startSettingsListener(selectedCarKey);
+    startSecretListener(selectedCarKey);
+
+    return firebase.database().ref().update(updates);
+}
+
+function startSettingsListener(carKey){
+  //listener for secret
+
+    firebase.database().ref('cars/' + carKey + '/settings').on('value', function(snapshot) {
+        var settingsDict = snapshot.val();
+        document.getElementById("settings").style = "display:inline";
+        document.getElementById("temp").style = "display:inline";
+        document.getElementById("fanSpeed").style = "display:inline";
+        document.getElementById("AC").style = "display:inline";
+        document.getElementById("recirc").style = "display:inline";
+        document.getElementById("band").style = "display:inline";
+        document.getElementById("station").style = "display:inline";
+        document.getElementById("temp").innerHTML = "Cabin Temp: " + settingsDict["temp"];
+        document.getElementById("fanSpeed").innerHTML = "Fanspeed: " + settingsDict["fanSpeed"];
+        document.getElementById("AC").innerHTML = "A/C: " + settingsDict["AC"];
+        document.getElementById("recirc").innerHTML = "Recirc: " + settingsDict["recirc"];
+        document.getElementById("band").innerHTML = "RadioBand: " + settingsDict["radioBand"];
+        document.getElementById("station").innerHTML = "Station: " + settingsDict["radioStationInt"] + "." + settingsDict["radioStationFrac"];
+
+    });
+
+}
+
+function startSecretListener(carKey){
+  //listener for secret
+
+    firstTime = true;
+    firebase.database().ref('cars/' + carKey + '/secret').on('value', function(snapshot) {
+        createCookie("secret", snapshot.val(), 1);
+        globalSecret = snapshot.val();
+        document.getElementById("feedback").appendChild(document.createElement("br"));
+        document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
+        firebase.database().ref('cars/' + carKey + '/ready').set(true);
+        document.getElementById("command").style = "display:inline";
+
+    });
+
+}
+
+function pushClimateCommand(){
+	var checkFan = document.getElementById("checkFan").checked;
+  var checkTemp = document.getElementById("checkTemp").checked;
+	var checkAC = document.getElementById("checkAC").checked;
+  var checkRecirc = document.getElementById("checkRecirc").checked;
+
+	var fan = document.getElementById("fanSpeed").value;
+  var temp = document.getElementById("temp").value;
+  var acON = document.getElementById("acON").checked;
+  var acOFF = document.getElementById("acOFF").checked;
+  var recON = document.getElementById("recircON").checked;
+  var recOFF = document.getElementById("recircOFF").checked;
+
+  var postData = {};
+  if (checkFan){
+  	postData.fanSpeed = parseFloat(fan);
+  }
+  if (checkTemp){
+  	postData.temperature = parseFloat(temp);
+  }
+  if (checkAC){
+    if (acON)
+  	   postData.acEnable = true;
+     else if (acOFF)
+       postData.acEnable = false;
+  }
+  if (checkRecirc){
+    if (recON)
+  	   postData.recirc = true;
+    else if (recOFF)
+       postData.recirc = false;
+  }
+
+    var secretCookie = readCookie('secret');
+    if (!secretCookie){
+      secretCookie = globalSecret;
+    }
+    postData.secret = secretCookie;
+    console.log("read cookie secret: " + secretCookie);
+    console.log(postData);
+
+  	var carKeyCookie = readCookie('carKey');
+  	if (!carKeyCookie){
+  		carKeyCookie = globalCarKey;
+  	}
+    console.log("read cookie car key: " + carKeyCookie);
+
+  // Get a key for a new climate command.
+  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
+
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  var updates = {};
+  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
+  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+
+  document.getElementById("feedback").appendChild(document.createElement("br"));
+  document.getElementById("feedback").appendChild(document.createTextNode("Added new climate command"));
+
+  if (firstTime){
+    firstTime = false;
+    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+  }
+
+  return firebase.database().ref().update(updates);
+}
+
+function pushRadioCommand(){
+  var checkBand = document.getElementById("checkBand").checked;
+  var checkStation = document.getElementById("checkStation").checked;
+  
+  var band = document.getElementById("band").value;
+  var station = document.getElementById("station").value;
+  
+  var postData = {};
+  if (checkBand){
+    postData.band = band;
+  }
+  if (checkStation){
+    postData.station = station;
+  }
+
+  var secretCookie = readCookie('secret');
+  if (!secretCookie){
+    secretCookie = globalSecret;
+  }
+  postData.secret = secretCookie;
+  console.log("read cookie secret: " + secretCookie);
+  console.log(postData);
+
+  var carKeyCookie = readCookie('carKey');
+  if (!carKeyCookie){
+    carKeyCookie = globalCarKey;
+  }
+  console.log("read cookie car key: " + carKeyCookie);
+
+  // Get a key for a new climate command.
+  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/radio/').push().key;
+
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  var updates = {};
+  updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
+  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+
+  document.getElementById("feedback").appendChild(document.createElement("br"));
+  document.getElementById("feedback").appendChild(document.createTextNode("Added new radio command"));
+
+  if (firstTime){
+    firstTime = false;
+    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+  }
+
+  return firebase.database().ref().update(updates);
+  }
+
+function disconnectPassenger(){
+  firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+  firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+  firebase.database().ref('cars/' + globalCarKey + '/ready').remove();
+  firebase.database().ref('cars/' + globalCarKey + '/passengers/' + savedPassengerKey).remove();
+  firebase.database().ref('cars/' + globalCarKey + '/available').set(true);
+  firebase.database().ref('cars/' + globalCarKey + '/climate').remove();
+  firebase.database().ref('cars/' + globalCarKey + '/radio').remove();
+
+  eraseCookie("carKey");
+  eraseCookie("secret");
+  globalSecret = ""
+  globalCarKey = ""
+
+  document.getElementById("carsHolder").setAttribute("style", "display:none");
+  document.getElementById("chooseCar").setAttribute("style", "display:none");
+  document.getElementById("disconnectCar").setAttribute("style", "display:none");
+  document.getElementById("findCar").setAttribute("style", "display:inline"); 
+  document.getElementById("command").style = "display:none";
+  document.getElementById("feedback").innerHTML = "";
+
+  document.getElementById("settings").style = "display:none";
+  document.getElementById("temp").style = "display:none";
+  document.getElementById("fanSpeed").style = "display:none";
+  document.getElementById("AC").style = "display:none";
+  document.getElementById("recirc").style = "display:none";
+  document.getElementById("band").style = "display:none";
+  document.getElementById("station").style = "display:none";
+
+  var myNode = document.getElementById("mySelect");
+  while (myNode.firstChild) {
+    myNode.removeChild(myNode.firstChild);
+  }
+}
+
+function createCookie(name,value,days) {
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime()+(days*24*60*60*1000));
+        var expires = "; expires="+date.toGMTString();
+    }
+    else var expires = "";
+    document.cookie = name + "=" + value + expires + "; path=/";
+    console.log("Cookie value for " + name + ": " + document.cookie)
+}
+
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    createCookie(name,"",-1);
+}
+</script>
+
+
+</body>
+
+
+
+</html>
