@@ -45,13 +45,13 @@ Passenger Name: <input type="text" name="name" id="nameInput" value="John"><br>
 
 <br>
 <p id="settings" style="display:none">
-  <div id="temp" style="display:none"></div><br>
-  <div id="fanSpeed" style="display:none"></div><br>
-  <div id="AC" style="display:none"></div><br>
-  <div id="recirc" style="display:none"></div><br>
+  <div id="displayTemp" style="display:none"></div><br>
+  <div id="displayFanSpeed" style="display:none"></div><br>
+  <div id="displayAC" style="display:none"></div><br>
+  <div id="displayrecirc" style="display:none"></div><br>
   <br>
-  <div id="band"></div><br>
-  <div id="station"></div><br>
+  <div id="displayRadioBand"></div><br>
+  <div id="displayStation"></div><br>
 </p>
 <br>
 <p id="command" style="display:none">
@@ -198,18 +198,18 @@ function startSettingsListener(carKey){
     firebase.database().ref('cars/' + carKey + '/settings').on('value', function(snapshot) {
         var settingsDict = snapshot.val();
         document.getElementById("settings").style = "display:inline";
-        document.getElementById("temp").style = "display:inline";
-        document.getElementById("fanSpeed").style = "display:inline";
-        document.getElementById("AC").style = "display:inline";
-        document.getElementById("recirc").style = "display:inline";
-        document.getElementById("band").style = "display:inline";
-        document.getElementById("station").style = "display:inline";
-        document.getElementById("temp").innerHTML = "Cabin Temp: " + settingsDict["temp"];
-        document.getElementById("fanSpeed").innerHTML = "Fanspeed: " + settingsDict["fanSpeed"];
-        document.getElementById("AC").innerHTML = "A/C: " + settingsDict["AC"];
-        document.getElementById("recirc").innerHTML = "Recirc: " + settingsDict["recirc"];
-        document.getElementById("band").innerHTML = "RadioBand: " + settingsDict["radioBand"];
-        document.getElementById("station").innerHTML = "Station: " + settingsDict["radioStationInt"] + "." + settingsDict["radioStationFrac"];
+        document.getElementById("displayTemp").style = "display:inline";
+        document.getElementById("displayFanSpeed").style = "display:inline";
+        document.getElementById("displayAC").style = "display:inline";
+        document.getElementById("displayrecirc").style = "display:inline";
+        document.getElementById("displayRadioBand").style = "display:inline";
+        document.getElementById("displayStation").style = "display:inline";
+        document.getElementById("displayTemp").innerHTML = "Cabin Temp: " + settingsDict["temp"];
+        document.getElementById("displayFanSpeed").innerHTML = "Fanspeed: " + settingsDict["fanSpeed"];
+        document.getElementById("displayAC").innerHTML = "A/C: " + settingsDict["AC"];
+        document.getElementById("displayrecirc").innerHTML = "Recirc: " + settingsDict["recirc"];
+        document.getElementById("displayRadioBand").innerHTML = "RadioBand: " + settingsDict["radioBand"];
+        document.getElementById("displayStation").innerHTML = "Station: " + settingsDict["radioStationInt"] + "." + settingsDict["radioStationFrac"];
 
     });
 
@@ -246,9 +246,11 @@ function pushClimateCommand(){
 
   var postData = {};
   if (checkFan){
+    console.log("fan value: " + fan);
   	postData.fanSpeed = parseFloat(fan);
   }
   if (checkTemp){
+    console.log("temp value: " + temp);
   	postData.temperature = parseFloat(temp);
   }
   if (checkAC){
@@ -369,12 +371,12 @@ function disconnectPassenger(){
   document.getElementById("feedback").innerHTML = "";
 
   document.getElementById("settings").style = "display:none";
-  document.getElementById("temp").style = "display:none";
-  document.getElementById("fanSpeed").style = "display:none";
-  document.getElementById("AC").style = "display:none";
-  document.getElementById("recirc").style = "display:none";
-  document.getElementById("band").style = "display:none";
-  document.getElementById("station").style = "display:none";
+  document.getElementById("displayTemp").style = "display:none";
+  document.getElementById("displayFanSpeed").style = "display:none";
+  document.getElementById("displayAC").style = "display:none";
+  document.getElementById("displayrecirc").style = "display:none";
+  document.getElementById("displayRadioBand").style = "display:none";
+  document.getElementById("displayStation").style = "display:none";
 
   var myNode = document.getElementById("mySelect");
   while (myNode.firstChild) {
