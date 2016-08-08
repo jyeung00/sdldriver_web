@@ -1,0 +1,48 @@
+.ui-page {
+	background-color: skyblue;
+	font-family: verdana
+}
+.ford-logo{
+	text-align:center;
+	background-color:black;
+	padding:10px;
+}
+h1 {
+	font-size: 25px;
+	margin:30px;
+}
+img {
+	height:44.38px;
+	padding:0px;
+}
+.btnAC.active {
+    background-color: #FFA500;
+    color: #fff;
+}
+.btnAC.active:hover{
+	background-color: #FFA500;
+    color: #fff;	
+}
+.btnRecirc.active {
+    background-color: #FFA500;
+    color: #fff;
+}
+.btnRecirc.active:hover{
+	background-color: #FFA500;
+    color: #fff;	
+}
+.btnBand.active {
+    background-color: #FFA500;
+    color: #fff;
+}
+.btnBand.active:hover{
+	background-color: #FFA500;
+    color: #fff;	
+}
+
+.label{
+	text-align:center;
+	font-size:30px;
+	height: 40px;
+	line-height: 40px;
+}

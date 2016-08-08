@@ -2,678 +2,102 @@
 
 <head>
 	<meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-		<link href="css/bootstrap.min.css" rel="stylesheet">
-	<title> SDL Rider - Web Client</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+
+  <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
-	<script>
-	  // Initialize Firebase
-	  var config = {
-	    apiKey: "AIzaSyAbBuLS3vhjefXrnrAmJDAC09TTVi6T8lo",
-	    authDomain: "ford-rsdl.firebaseapp.com",
-	    databaseURL: "https://ford-rsdl.firebaseio.com",
-	    storageBucket: "ford-rsdl.appspot.com",
-	  };
-	  firebase.initializeApp(config);
-	</script>
+  <script src="js/Firebase.js"></script>
 
-
-<script type="text/javascript">
-var globalCarKey = "";
-var globalSecret = "";
-var firstTime = true;
-var savedPassengerKey = "";
-
-function addNewCar() {
-  var name = "bob";
-  var car = "gt";
-  var postData = {
-    available: true,
-    name: name,
-    car: car
-  };
-
-  // Get a key for a new Post.
-  var newPostKey = firebase.database().ref().child('cars').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").innerHTML = "Added new car for " + name + " in a " + car;
-  createCookie('carKey',newPostKey,1);
-  document.getElementById("command").style = "display:inline";
-  return firebase.database().ref().update(updates);
-}
-
-function findCars(){
-  var availableCars = false;
-
-	firebase.database().ref('/cars/').once('value').then(function(snapshot) {
-	  var cars = snapshot.val();
-
-		var selectElement = document.createElement("SELECT");
-    	selectElement.setAttribute("id", "mySelect");
-    	selectElement.setAttribute("class", "form-control");
-    	document.getElementById("selectCars").appendChild(selectElement);
-
-	  for (var key in cars){
-	  	var carDict = cars[key];
-	  	var z = document.createElement("option");
-
-	    var str = carDict["name"] + ", " + carDict["car"];
-	    if (carDict["available"] == true){
-	    	str = str + ", " + "available";
-        availableCars = true;
-        z.setAttribute("value", key);
-        var t = document.createTextNode(str);
-        z.appendChild(t);
-        document.getElementById("mySelect").appendChild(z);
-
-	    }
-	    else{
-	    	str = str + ", " + "not available";
-	    	z.setAttribute("disabled", true);
-	    }
-	  }
-
-    if (availableCars){
-         document.getElementById("carsHolder").setAttribute("style", "display:inline");
-         document.getElementById("chooseCar").setAttribute("style", "display:inline");
-         document.getElementById("findCar").setAttribute("style", "display:none");
-      }
-      else{
-        document.getElementById("selectCars").innerHTML = "No available rides";
-      }
-	});
-}
-
-function chooseCar() {
-    var selectedCarKey = document.getElementById("mySelect").value;
-    var name = document.getElementById("nameInput").value;
-    createCookie('carKey', selectedCarKey, 1);
-    globalCarKey = selectedCarKey;
-
-    var newPassengerKey = firebase.database().ref().child('cars/' + selectedCarKey + '/passengers').push().key;
-    var postData = {
-      passenger_name: name,
-      passenger_type: "web"
-    };
-    var updates = {};
-    updates['/cars/' + selectedCarKey + '/passengers/' + newPassengerKey] = postData;
-    
-    document.getElementById("feedback").appendChild(document.createElement("br"));
-    document.getElementById("feedback").appendChild(document.createTextNode("Added new passenger, " + name));
-    document.getElementById("feedback").appendChild(document.createElement("br"));
-    document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
-    document.getElementById("chooseCar").setAttribute("style", "display:none");
-    document.getElementById("disconnectCar").setAttribute("style", "display:inline");
-
-    startSettingsListener(selectedCarKey);
-    startSecretListener(selectedCarKey);
-
-    return firebase.database().ref().update(updates);
-}
-
-function startSettingsListener(carKey){
-  //listener for secret
-
-    firebase.database().ref('cars/' + carKey + '/settings').on('value', function(snapshot) {
-        var settingsDict = snapshot.val();
-        document.getElementById("settings").style = "display:inline";
-        document.getElementById("displayTemp").style = "display:inline";
-        document.getElementById("displayFanSpeed").style = "display:inline";
-        document.getElementById("displayAC").style = "display:inline";
-        document.getElementById("displayrecirc").style = "display:inline";
-        document.getElementById("displayRadioBand").style = "display:inline";
-        document.getElementById("displayStation").style = "display:inline";
-        document.getElementById("displayTempBody").innerHTML = settingsDict["temp"];
-        document.getElementById("displayFanSpeedBody").innerHTML = settingsDict["fanSpeed"];
-        document.getElementById("displayACBody").innerHTML = settingsDict["AC"];
-        document.getElementById("displayrecircBody").innerHTML = settingsDict["recirc"];
-        document.getElementById("displayRadioBandBody").innerHTML = settingsDict["radioBand"];
-        document.getElementById("displayStationBody").innerHTML = settingsDict["radioStationInt"] + "." + settingsDict["radioStationFrac"];
-    });
-}
-
-function startSecretListener(carKey){
-  //listener for secret
-
-    firstTime = true;
-    firebase.database().ref('cars/' + carKey + '/secret').on('value', function(snapshot) {
-        createCookie("secret", snapshot.val(), 1);
-        globalSecret = snapshot.val();
-        document.getElementById("feedback").appendChild(document.createElement("br"));
-        document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
-        firebase.database().ref('cars/' + carKey + '/ready').set(true);
-        document.getElementById("command").style = "display:inline";
-
-    });
-
-}
-function sendFanspeed(){
- 
-  var fan = document.getElementById("fanSpeed").value;
- 
-  var postData = {};
-  postData.fanSpeed = parseFloat(fan);
- 
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
- 
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
- 
-  // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Added new Fanspeed command"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-
-  document.getElementById("displayFanSpeed").innerHTML = "Fanspeed: " + (fan * 14);
-
-  return firebase.database().ref().update(updates);
-}
-
-function sendTemp(){
-  var temp = document.getElementById("temp").value;
-  var postData = {};
-  postData.temperature = parseFloat(temp);
-  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
-  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-  
-  // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Added new Temperature command"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-  document.getElementById("displayTempBody").innerHTML = temp;
-        
-  return firebase.database().ref().update(updates);
-}
-
-function sendACOn(){
-  
-  var postData = {};
-  postData.acEnable = true;
-  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
-  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-    // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set AC ON"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-   document.getElementById("displayACBody").innerHTML = "ON";
-        
-  return firebase.database().ref().update(updates);
-}
-
-function sendACOff(){
-  
-  var postData = {};
-  postData.acEnable = false;
-  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
-  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-    // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set AC Off"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-
-  document.getElementById("displayACBody").innerHTML = "OFF";
-        
-  return firebase.database().ref().update(updates);
-}
-
-
-function sendRecircOn(){
-  
-  var postData = {};
-  postData.recirc = true;
-  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
-  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-    // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set AC Off"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-
-  document.getElementById("displayrecircBody").innerHTML = "ON";
-        
-  return firebase.database().ref().update(updates);
-}
-
-function sendRecircOff(){
-  
-  var postData = {};
-  postData.recirc = false;
-  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
-  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-    // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set AC Off"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-  document.getElementById("displayrecircBody").innerHTML = "OFF";
-        
-  return firebase.database().ref().update(updates);
-}
-
-function sendBand(){
-  var band = document.getElementById("band").value;
-  
-  var postData = {};
-  postData.band = band;
-  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
-  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-  
-  // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/radio/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set radio band"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-  document.getElementById("displayRadioBandBody").innerHTML = band;
-
-  return firebase.database().ref().update(updates);
-}
-
-function sendStation(){
-  var station = document.getElementById("station").value;
-  
-  var postData = {};
-  postData.station = station;
-  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
-  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-  
-  // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/radio/').push().key;
-
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set radio station"));
-
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
-
-  document.getElementById("displayStationBody").innerHTML = station;
-
-  return firebase.database().ref().update(updates);
-  }
-  
-function disconnectPassenger(){
-  firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-  firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  firebase.database().ref('cars/' + globalCarKey + '/ready').remove();
-  firebase.database().ref('cars/' + globalCarKey + '/passengers/' + savedPassengerKey).remove();
-  firebase.database().ref('cars/' + globalCarKey + '/available').set(true);
-  firebase.database().ref('cars/' + globalCarKey + '/climate').remove();
-  firebase.database().ref('cars/' + globalCarKey + '/radio').remove();
-
-  eraseCookie("carKey");
-  eraseCookie("secret");
-  globalSecret = ""
-  globalCarKey = ""
-
-  document.getElementById("carsHolder").setAttribute("style", "display:none");
-  document.getElementById("chooseCar").setAttribute("style", "display:none");
-  document.getElementById("disconnectCar").setAttribute("style", "display:none");
-  document.getElementById("findCar").setAttribute("style", "display:inline"); 
-  document.getElementById("command").style = "display:none";
-  document.getElementById("feedback").innerHTML = "";
-
-  document.getElementById("settings").style = "display:none";
-  document.getElementById("displayTemp").style = "display:none";
-  document.getElementById("displayFanSpeed").style = "display:none";
-  document.getElementById("displayAC").style = "display:none";
-  document.getElementById("displayrecirc").style = "display:none";
-  document.getElementById("displayRadioBand").style = "display:none";
-  document.getElementById("displayStation").style = "display:none";
-
-  var myNode = document.getElementById("mySelect");
-  while (myNode.firstChild) {
-    myNode.removeChild(myNode.firstChild);
-  }
-}
-
-function createCookie(name,value,days) {
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime()+(days*24*60*60*1000));
-        var expires = "; expires="+date.toGMTString();
-    }
-    else var expires = "";
-    document.cookie = name + "=" + value + expires + "; path=/";
-    console.log("Cookie value for " + name + ": " + document.cookie)
-}
-
-function readCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
-}
-
-function eraseCookie(name) {
-    createCookie(name,"",-1);
-}
-</script>
-
+  <title> SDL Rider</title>
 </head>
 
 <body>
 
+<div data-role="page">
+    <!-- logo -->
+    <div data-role="ford-logo" id="header" class="ford-logo"><img src="fordLogo.png" height=80px width=200px></div>
+    <noscript>Please install JavaScript support to use this application!</noscript>
 
-<div class="container theme-showcase" role="main">
+    <!-- login section -->
+		<div id="login">    
+    		<form>
+    		Passenger Name: <input type="text" name="name" id="nameInput" value="John" class="form-control">
+    		</form>	
+    		<button id="findCar" onclick="findCars()" data-toggle="collapse">View Available Cars</button>
 
-		<div class="page-header">
-		        <h1>Passenger Info</h1>
-		</div>
-		    
-		<form>
-		Passenger Name: <input type="text" name="name" id="nameInput" value="John" class="form-control">
-		</form>
-		<button onclick="addNewCar()" class="btn btn-lg btn-warning">
-			DEBUG: Add car
-		</button>
-		<button id="findCar" onclick="findCars()" class="btn btn-lg btn-primary">
-			View Available Cars
-		</button>
+    		<p id="carsHolder" style="display:none">
+      			<label for="mySelect">Available Cars</label>
+    			<p id="selectCars"></p>
+    			<button id="chooseCar" style="display:none" onclick="chooseCar()" class="btn btn-lg btn-success">Choose Car</button>
+    		  </p>
+    		  
+    		</p>
+    </div>
 
-		
-		<p id="carsHolder" style="display:none">
-		<div class="page-header">
-		        <h1>Cars</h1>
-		</div>
-
+    <!-- commands -->
+		<div id="command" style="display:none">
+        <button id="disconnectCar" style="display:none" onclick="disconnectPassenger()">Disembark Car</button>
 			
-  			<label for="mySelect">Available Cars:</label>
-  			
-			<p id="selectCars">
+      <div class="ui-grid-a">
+    			<div class="ui-block-a"> 
+              <div>
+              <button id="fanUp" onclick="sendFanspeed(1)" class="button"><img src="assets/arrow_up.png"></button>
+              <div id="fanSpeed" name="fanSpeed" class="label"></div>
+              <button id="fanDown" onclick="sendFanspeed(0)" class="button"><img src="assets/arrow_down.png"></button>
+              </div>
+    		    </div>
+    		  <div class="ui-block-b">
+              <div>
+                  <button id="tempUp" onclick="sendTemp(1)" class="button"><img src="assets/red_arrow_up.png"></button>
+                  <div id="temp" name="temp" class="label"></div>
+                  <button id="tempDown" onclick="sendTemp(0)" class="button"><img src="assets/blue_arrow_down.png"></button>
+              </div>  
+          </div>
+          <div class="ui-block-a">
+              <button id="ac" onclick="sendAC()" class="btnAC">A/C</button>
+          </div>
+          <div class="ui-block-b">
+              <button id="recirc" onclick="sendRecirc()" class="btnRecirc"><img src="assets/recirc.png"></button>
+          </div>
+      </div>
 
-			</p>
-			<button id="chooseCar" style="display:none" onclick="chooseCar()" class="btn btn-lg btn-success">Choose Car</button>
-		</p>
+      <div class="ui-grid-b">
+           <div class="ui-block-a"> 
+              <button id="btnAM" onclick="sendBand(1)" class="btnBand">AM</button>
+              <button id="btnFM" onclick="sendBand(2)" class="btnBand">FM</button>
+              <button id="btnXM" onclick="sendBand(3)" class="btnBand">XM</button>
+          </div>
+          <div class="ui-block-b">
+              <button id="presetA" onclick="sendStation(87.9)" class="preset">87.9</button>
+              <button id="presetB" onclick="sendStation(89.9)" class="preset">89.9</button>
+              <button id="presetC" onclick="sendStation(91.3)" class="preset">91.3</button>
+          </div>
+          <div class="ui-block-c">
+              <button id="presetD" onclick="sendStation(98.1)" class="preset">98.1</button>
+              <button id="presetE" onclick="sendStation(106.3)" class="preset">106.3</button>
+              <button id="presetF" onclick="sendStation(107.9)" class="preset">107.9</button>
+          </div>
+      </div>
 
-		<button id="disconnectCar" style="display:none" onclick="disconnectPassenger()" class="btn btn-sm btn-danger">Disembark Car</button>
-		</p>
 
-		<p id="settings" style="display:none">
-			<div class="page-header">
-		        <h1>Settings</h1>
-			</div>
+      <div class="ui-grid-b">
+              <div class="ui-block-a">
+                    <button id="seekBackward" onclick="sendStation(0)" class="tune"><img src="assets/seek-backward.png"></button>
+              </div>
+              <div class="ui-block-b"> 
+                    <div id="station" name="station" class="label" style="transform: translateY(+50%)"></div>
+              </div>
+              <div class="ui-block-c">
+                  <button id="seekForward" onclick="sendStation(1)" class="tune"><img src="assets/seek-forward.png"></button>
+              </div>
+      </div>
 
-		<div class="row">
-	        <div class="col-sm-4">
-	          <div class="panel panel-default" id="displayTemp" style="display:none">
-	            <div class="panel-heading">
-	              <h3 class="panel-title">Cabin temperature</h3>
-	            </div>
-	            <div class="panel-body" id="displayTempBody">
-	            </div>
-	          </div>
-	          <div class="panel panel-primary" id="displayFanSpeed" style="display:none">
-	            <div class="panel-heading">
-	              <h3 class="panel-title">Fan Speed</h3>
-	            </div>
-	            <div class="panel-body" id="displayFanSpeedBody">
-	            </div>
-	          </div>
-	        </div><!-- /.col-sm-4 -->
-	        <div class="col-sm-4">
-	          <div class="panel panel-success" id="displayAC" style="display:none">
-	            <div class="panel-heading">
-	              <h3 class="panel-title">Air Conditioning</h3>
-	            </div>
-	            <div class="panel-body" id="displayACBody">
-	            </div>
-	          </div>
-	          <div class="panel panel-info" id="displayrecirc" style="display:none">
-	            <div class="panel-heading">
-	              <h3 class="panel-title">Recirculation</h3>
-	            </div>
-	            <div class="panel-body" id="displayrecircBody">
-	            </div>
-	          </div>
-	        </div><!-- /.col-sm-4 -->
-	        <div class="col-sm-4">
-	          <div class="panel panel-warning" id="displayRadioBand" style="display:none">
-	            <div class="panel-heading">
-	              <h3 class="panel-title">Radio Band</h3>
-	            </div>
-	            <div class="panel-body" id="displayRadioBandBody">
-	            </div>
-	          </div>
-	          <div class="panel panel-danger" id="displayStation" style="display:none">
-	            <div class="panel-heading">
-	              <h3 class="panel-title">Radio Station</h3>
-	            </div>
-	            <div class="panel-body" id="displayStationBody">
-	            </div>
-	          </div>
-	        </div><!-- /.col-sm-4 -->
-	      </div>
-<!-- 
-		  <div id="displayTemp" style="display:none"></div><br>
-		  <div id="displayFanSpeed" style="display:none"></div><br>
-		  <div id="displayAC" style="display:none"></div><br>
-		  <div id="displayrecirc" style="display:none"></div><br>
-		  <div id="displayRadioBand"></div><br>
-		  <div id="displayStation"></div><br> -->
-		</p>
-		<p id="command" style="display:none">
-			<div class="page-header">
-		        <h1>Commands</h1>
-			</div>
-			<div id="feedback"></div>
-			<h2>Climate</h2>
-
-		<div class="input-group input-group-lg">
-			<div class="form-group">
-		  Fan Speed: <input type="range" name="fanSpeed" id="fanSpeed" min="1" max="7" onchange="sendFanspeed()">
-		  </div>
-		  	<div class="form-group">
-			Temperature in C: <input class="form-control" type="number" name="temp" id="temp" value="26.5" onchange="sendTemp()">
-			</div>	
-			<div class="form-control">
-			Air conditioning: 
-		      <button onclick="sendACOn()" class="btn btn-sm btn-success">ON</button>
-		      <button onclick="sendACOff()" class="btn btn-sm btn-danger">OFF</button>
-		    </div>
-		    <div class="form-control">
-		  Recirculate: 
-		  <button onclick="sendRecircOn()" class="btn btn-sm btn-success">ON</button>
-		  <button onclick="sendRecircOff()" class="btn btn-sm btn-danger">OFF</button>
-		  </div>
-		</div>
-
-			
-		  <h2>Radio</h2>
-
-		  	<div class="form-group">
-		    
-  			<label for="band">RadioBand:</label>
-  			<select name="band" id="band" onchange="sendBand()" class="form-control">
-		                <option value="AM">AM</option>
-		                <option value="FM" selected="selected">FM</option>
-		                <option value="XM">XM</option>
-		                </select>
-			</div>
-		    <div class="form-control">
-		    Station: <input type="number" name="station" id="station" value="101.3" onchange="sendStation()">
-		    </div>
-
-		</p>
-
+    <div id="feedback" style="display:none"></div>
 
 </div>
-
 </body>
-
-
-
 </html>
