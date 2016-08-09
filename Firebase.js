@@ -23,10 +23,11 @@ function findCars(){
 	firebase.database().ref('/cars/').once('value').then(function(snapshot) {
 	  var cars = snapshot.val();
 
-		var selectElement = document.createElement("SELECT");
-    	selectElement.setAttribute("id", "mySelect");
-    	selectElement.setAttribute("class", "form-control");
-    	document.getElementById("selectCars").appendChild(selectElement);
+    document.getElementById("selectCars").setAttribute("style", "display:inline");
+		// var selectElement = document.createElement("SELECT");
+  //   	selectElement.setAttribute("id", "mySelect");
+  //   	selectElement.setAttribute("class", "form-control");
+  //   	document.getElementById("selectCars").appendChild(selectElement);
 
 	  for (var key in cars){
 	  	var carDict = cars[key];
@@ -40,7 +41,7 @@ function findCars(){
         var t = document.createTextNode(str);
         z.appendChild(t);
         document.getElementById("mySelect").appendChild(z);
-
+        document.getElementById("mySelect").value = str;
 	    }
 	    else{
 	    	str = str + ", " + "not available";
@@ -52,6 +53,7 @@ function findCars(){
          document.getElementById("carsHolder").setAttribute("style", "display:inline");
          document.getElementById("chooseCar").setAttribute("style", "display:inline");
          document.getElementById("findCar").setAttribute("style", "display:none");
+         document.getElementById("name").setAttribute("style", "display:none");
       }
       else{
         document.getElementById("selectCars").innerHTML = "No available rides";
@@ -197,7 +199,7 @@ function sendTemp(direction){
   if (direction == 1 && tempState < 30){
     temp = tempState + 0.5;
   }
-  else if (direction == 0 && tempState > 15){
+  else if (direction == 0 && tempState > 16){
     temp = tempState - 0.5;
   }
   else{
@@ -402,7 +404,7 @@ function sendStation(direction){
       document.getElementById("station").innerHTML = station / 10;
       
       var postData = {};
-      postData.station = station / 10;
+      postData.station = (station / 10).toString();
       
       var secretCookie = readCookie('secret');
       if (!secretCookie){
@@ -451,6 +453,7 @@ function disconnectPassenger(){
   globalSecret = ""
   globalCarKey = ""
 
+  document.getElementById("name").setAttribute("style", "display:inline");
   document.getElementById("carsHolder").setAttribute("style", "display:none");
   document.getElementById("chooseCar").setAttribute("style", "display:none");
   document.getElementById("disconnectCar").setAttribute("style", "display:none");
@@ -459,10 +462,9 @@ function disconnectPassenger(){
   document.getElementById("command").style = "display:none";
   document.getElementById("feedback").innerHTML = "";
 
-  var myNode = document.getElementById("mySelect");
-  while (myNode.firstChild) {
-    myNode.removeChild(myNode.firstChild);
-  }
+  document.getElementById("mySelect").innerHTML = "";
+  document.getElementById("selectCars").setAttribute("style", "display:none");
+  
 }
 
 function createCookie(name,value,days) {

@@ -23,15 +23,20 @@
     <noscript>Please install JavaScript support to use this application!</noscript>
 
     <!-- login section -->
-		<div id="login">    
-    		<form>
-    		Passenger Name: <input type="text" name="name" id="nameInput" value="John" class="form-control">
-    		</form>	
+		<div id="login"> 
+        <div id="name">   
+        		<form>
+        		Passenger Name: <input type="text" name="name" id="nameInput" placeholder="Name" class="form-control">
+        		</form>	
+        </div>
     		<button id="findCar" onclick="findCars()" data-toggle="collapse">View Available Cars</button>
 
     		<p id="carsHolder" style="display:none">
       			<label for="mySelect">Available Cars</label>
-    			<p id="selectCars"></p>
+    			<p id="selectCars" style="display:none">
+              <select name="mySelect" id="mySelect">
+              </select>
+          </p>
     			<button id="chooseCar" style="display:none" onclick="chooseCar()" class="btn btn-lg btn-success">Choose Car</button>
     		  </p>
     		  
@@ -61,7 +66,7 @@
               <button id="ac" onclick="sendAC()" class="btnAC">A/C</button>
           </div>
           <div class="ui-block-b">
-              <button id="recirc" onclick="sendRecirc()" class="btnRecirc"><img src="recirc.png"></button>
+              <button id="recirc" onclick="sendRecirc()" class="btnRecirc" style="max-height:44px;padding:0px 40px 10px 50px;"><img src="recirc.png"></button>
           </div>
       </div>
 
