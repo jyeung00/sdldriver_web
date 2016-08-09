@@ -29,21 +29,25 @@ function findCars(){
   //   	selectElement.setAttribute("class", "form-control");
   //   	document.getElementById("selectCars").appendChild(selectElement);
 
+    var selectedString = "";
 	  for (var key in cars){
 	  	var carDict = cars[key];
 	  	var z = document.createElement("option");
 
 	    var str = carDict["name"] + ", " + carDict["car"];
 	    if (carDict["available"] == true){
+
 	    	str = str + ", " + "available";
-        if (availableCars == false){
-            availableCars = true;
-        }
         z.setAttribute("value", key);
         var t = document.createTextNode(str);
         z.appendChild(t);
         document.getElementById("mySelect").appendChild(z);
         document.getElementById("mySelect").value = str;
+        if (availableCars == false){
+            availableCars = true;
+            selectedString = str;
+            z.setAttribute("id", "selectMe");
+        }
 	    }
 	    else{
 	    	str = str + ", " + "not available";
@@ -52,6 +56,12 @@ function findCars(){
 	  }
 
     if (availableCars){
+         document.getElementById("selectMe").setAttribute("selected", true);
+         var span = document.createElement("span");
+         var text = document.createTextNode(selectedString);
+         span.appendChild(text);
+         document.getElementById("mySelect-button").appendChild(span);
+
          document.getElementById("carsHolder").setAttribute("style", "display:inline");
          document.getElementById("chooseCar").setAttribute("style", "display:inline");
          document.getElementById("findCar").setAttribute("style", "display:none");
@@ -65,30 +75,32 @@ function findCars(){
 
 function chooseCar() {
     var selectedCarKey = document.getElementById("mySelect").value;
-    var name = document.getElementById("nameInput").value;
-    createCookie('carKey', selectedCarKey, 1);
-    globalCarKey = selectedCarKey;
+    if (selectedCarKey != ""){ 
+        var name = document.getElementById("nameInput").value;
+        createCookie('carKey', selectedCarKey, 1);
+        globalCarKey = selectedCarKey;
 
-    var newPassengerKey = firebase.database().ref().child('cars/' + selectedCarKey + '/passengers').push().key;
-    var postData = {
-      passenger_name: name,
-      passenger_type: "web"
-    };
-    var updates = {};
-    updates['/cars/' + selectedCarKey + '/passengers/' + newPassengerKey] = postData;
-    
-    document.getElementById("login").setAttribute("style", "display:none");
-    // document.getElementById("feedback").appendChild(document.createElement("br"));
-    // document.getElementById("feedback").appendChild(document.createTextNode("Added new passenger, " + name));
-    // document.getElementById("feedback").appendChild(document.createElement("br"));
-    // document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
-    document.getElementById("chooseCar").setAttribute("style", "display:none");
-    document.getElementById("disconnectCar").setAttribute("style", "display:inline");
+        var newPassengerKey = firebase.database().ref().child('cars/' + selectedCarKey + '/passengers').push().key;
+        var postData = {
+          passenger_name: name,
+          passenger_type: "web"
+        };
+        var updates = {};
+        updates['/cars/' + selectedCarKey + '/passengers/' + newPassengerKey] = postData;
+        
+        document.getElementById("login").setAttribute("style", "display:none");
+        // document.getElementById("feedback").appendChild(document.createElement("br"));
+        // document.getElementById("feedback").appendChild(document.createTextNode("Added new passenger, " + name));
+        // document.getElementById("feedback").appendChild(document.createElement("br"));
+        // document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
+        document.getElementById("chooseCar").setAttribute("style", "display:none");
+        document.getElementById("disconnectCar").setAttribute("style", "display:inline");
 
-    startSettingsListener(selectedCarKey);
-    startSecretListener(selectedCarKey);
+        startSettingsListener(selectedCarKey);
+        startSecretListener(selectedCarKey);
 
-    return firebase.database().ref().update(updates);
+        return firebase.database().ref().update(updates);
+    }
 }
 
 function startSettingsListener(carKey){
