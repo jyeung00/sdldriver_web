@@ -19,6 +19,11 @@ select, img {
 	max-height: 44px;
 	padding:10px 40px 10px 50px;
 /*}*/
+.status{
+	text-align: center;
+	font-size:40px;
+	line-height: 40px;
+}
 .btnAC.active {
     background-color: #FFA500;
     color: #fff;

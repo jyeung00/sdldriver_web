@@ -108,33 +108,35 @@ function startSettingsListener(carKey){
 
     firebase.database().ref('cars/' + carKey + '/settings').on('value', function(snapshot) {
         var settingsDict = snapshot.val();
-        document.getElementById("temp").innerHTML = settingsDict["temp"];
-        document.getElementById("fanSpeed").innerHTML = settingsDict["fanSpeed"] / 14;
-        document.getElementById("station").innerHTML = settingsDict["radioStationInt"] + "." + settingsDict["radioStationFrac"];
-        
-        stationState = parseFloat(settingsDict["radioStationInt"] + settingsDict["radioStationFrac"] / 10) * 10;
-        $('.btnBand').removeClass("active");
-        bandState = settingsDict["radioBand"];
-        if (bandState == "FM"){
-          $("#btnFM").addClass("active");      
-        }
-        else if (bandState == "AM"){
-          $("#btnAM").addClass("active");
-        }
-        else if (bandState == "XM")
-        {
-          $("#btnXM").addClass("active");
-        }
-        tempState = settingsDict["temp"];
-        ACState = settingsDict["AC"];
-        recircState = settingsDict["recirc"];
-        fanSpeedState = settingsDict["fanSpeed"] / 14;
+        if (snapshot.val() != null){
+            document.getElementById("temp").innerHTML = settingsDict["temp"];
+            document.getElementById("fanSpeed").innerHTML = settingsDict["fanSpeed"] / 14;
+            document.getElementById("station").innerHTML = settingsDict["radioStationInt"] + "." + settingsDict["radioStationFrac"];
+            
+            stationState = parseFloat(settingsDict["radioStationInt"] + settingsDict["radioStationFrac"] / 10) * 10;
+            $('.btnBand').removeClass("active");
+            bandState = settingsDict["radioBand"];
+            if (bandState == "FM"){
+              $("#btnFM").addClass("active");      
+            }
+            else if (bandState == "AM"){
+              $("#btnAM").addClass("active");
+            }
+            else if (bandState == "XM")
+            {
+              $("#btnXM").addClass("active");
+            }
+            tempState = settingsDict["temp"];
+            ACState = settingsDict["AC"];
+            recircState = settingsDict["recirc"];
+            fanSpeedState = settingsDict["fanSpeed"] / 14;
 
-        if (ACState){
-          $('.btnAC').addClass("active");
-        }
-        if (recircState){
-          $('.btnRecirc').addClass("active");
+            if (ACState){
+              $('.btnAC').addClass("active");
+            }
+            if (recircState){
+              $('.btnRecirc').addClass("active");
+            }
         }
     });
 }
@@ -144,13 +146,18 @@ function startSecretListener(carKey){
 
     firstTime = true;
     firebase.database().ref('cars/' + carKey + '/secret').on('value', function(snapshot) {
+
         createCookie("secret", snapshot.val(), 1);
         globalSecret = snapshot.val();
-        // document.getElementById("feedback").appendChild(document.createElement("br"));
-        // document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
-        firebase.database().ref('cars/' + carKey + '/ready').set(true);
-        firebase.database().ref('cars/' + carKey + '/available').set(false);
-        document.getElementById("command").setAttribute("style", "display:inline");
+        document.getElementById("waiting").setAttribute("style", "display:inline");
+        if (globalSecret != null){
+            // document.getElementById("feedback").appendChild(document.createElement("br"));
+            // document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
+            document.getElementById("waiting").setAttribute("style", "display:none");
+            firebase.database().ref('cars/' + carKey + '/ready').set(true);
+            firebase.database().ref('cars/' + carKey + '/available').set(false);
+            document.getElementById("command").setAttribute("style", "display:inline");
+        }
 
     });
 }
