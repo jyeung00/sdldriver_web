@@ -36,7 +36,10 @@ function findCars(){
 	    var str = carDict["name"] + ", " + carDict["car"];
 	    if (carDict["available"] == true){
 	    	str = str + ", " + "available";
-        availableCars = true;
+        if (availableCars == false){
+            z.setAttribute("selected", "selected");
+            availableCars = true;
+        }
         z.setAttribute("value", key);
         var t = document.createTextNode(str);
         z.appendChild(t);
