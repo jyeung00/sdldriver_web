@@ -76,10 +76,10 @@ function chooseCar() {
     updates['/cars/' + selectedCarKey + '/passengers/' + newPassengerKey] = postData;
     
     document.getElementById("login").setAttribute("style", "display:none");
-    document.getElementById("feedback").appendChild(document.createElement("br"));
-    document.getElementById("feedback").appendChild(document.createTextNode("Added new passenger, " + name));
-    document.getElementById("feedback").appendChild(document.createElement("br"));
-    document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
+    // document.getElementById("feedback").appendChild(document.createElement("br"));
+    // document.getElementById("feedback").appendChild(document.createTextNode("Added new passenger, " + name));
+    // document.getElementById("feedback").appendChild(document.createElement("br"));
+    // document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
     document.getElementById("chooseCar").setAttribute("style", "display:none");
     document.getElementById("disconnectCar").setAttribute("style", "display:inline");
 
@@ -132,8 +132,8 @@ function startSecretListener(carKey){
     firebase.database().ref('cars/' + carKey + '/secret').on('value', function(snapshot) {
         createCookie("secret", snapshot.val(), 1);
         globalSecret = snapshot.val();
-        document.getElementById("feedback").appendChild(document.createElement("br"));
-        document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
+        // document.getElementById("feedback").appendChild(document.createElement("br"));
+        // document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
         firebase.database().ref('cars/' + carKey + '/ready').set(true);
         document.getElementById("command").setAttribute("style", "display:inline");
 
@@ -179,8 +179,8 @@ function sendFanspeed(direction){
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
   //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
 
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Added new Fanspeed command"));
+  // document.getElementById("feedback").appendChild(document.createElement("br"));
+  // document.getElementById("feedback").appendChild(document.createTextNode("Added new Fanspeed command"));
 
   if (firstTime){
     firstTime = false;
@@ -230,8 +230,8 @@ function sendTemp(direction){
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
   //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
 
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Added new Temperature command"));
+  // document.getElementById("feedback").appendChild(document.createElement("br"));
+  // document.getElementById("feedback").appendChild(document.createTextNode("Added new Temperature command"));
 
   if (firstTime){
     firstTime = false;
@@ -274,8 +274,8 @@ function sendAC(){
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
   //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
 
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set AC " + ACState));
+  // document.getElementById("feedback").appendChild(document.createElement("br"));
+  // document.getElementById("feedback").appendChild(document.createTextNode("Set AC " + ACState));
 
   if (firstTime){
     firstTime = false;
@@ -318,8 +318,8 @@ function sendRecirc(){
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
   //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
 
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set Recirc" + recircState));
+  // document.getElementById("feedback").appendChild(document.createElement("br"));
+  // document.getElementById("feedback").appendChild(document.createTextNode("Set Recirc" + recircState));
 
   if (firstTime){
     firstTime = false;
@@ -372,8 +372,8 @@ function sendBand(i){
   updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
   //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
 
-  document.getElementById("feedback").appendChild(document.createElement("br"));
-  document.getElementById("feedback").appendChild(document.createTextNode("Set radio band"));
+  // document.getElementById("feedback").appendChild(document.createElement("br"));
+  // document.getElementById("feedback").appendChild(document.createTextNode("Set radio band"));
 
   if (firstTime){
     firstTime = false;
@@ -424,8 +424,8 @@ function sendStation(direction){
       updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
       //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
 
-      document.getElementById("feedback").appendChild(document.createElement("br"));
-      document.getElementById("feedback").appendChild(document.createTextNode("Set radio station"));
+      // document.getElementById("feedback").appendChild(document.createElement("br"));
+      // document.getElementById("feedback").appendChild(document.createTextNode("Set radio station"));
 
       if (firstTime){
         firstTime = false;
@@ -459,7 +459,7 @@ function disconnectPassenger(){
   document.getElementById("findCar").setAttribute("style", "display:inline"); 
   document.getElementById("login").setAttribute("style", "display:inline"); 
   document.getElementById("command").style = "display:none";
-  document.getElementById("feedback").innerHTML = "";
+  // document.getElementById("feedback").innerHTML = "";
 
   document.getElementById("mySelect").innerHTML = "";
   document.getElementById("selectCars").setAttribute("style", "display:none");
