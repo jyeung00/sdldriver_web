@@ -138,7 +138,7 @@ function startSecretListener(carKey){
         document.getElementById("command").style = "display:inline";
 
     });
-
+    document.getElementById("command").style = "display:inline";
 }
 
 function sendFanspeed(direction){
