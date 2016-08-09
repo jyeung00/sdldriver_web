@@ -135,6 +135,7 @@ function startSecretListener(carKey){
         // document.getElementById("feedback").appendChild(document.createElement("br"));
         // document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
         firebase.database().ref('cars/' + carKey + '/ready').set(true);
+        firebase.database().ref('cars/' + carKey + '/available').set(false);
         document.getElementById("command").setAttribute("style", "display:inline");
 
     });
