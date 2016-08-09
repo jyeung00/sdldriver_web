@@ -37,7 +37,6 @@ function findCars(){
 	    if (carDict["available"] == true){
 	    	str = str + ", " + "available";
         if (availableCars == false){
-            z.setAttribute("selected", "selected");
             availableCars = true;
         }
         z.setAttribute("value", key);
@@ -447,7 +446,7 @@ function disconnectPassenger(){
   firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
   firebase.database().ref('cars/' + globalCarKey + '/ready').remove();
   firebase.database().ref('cars/' + globalCarKey + '/passengers/' + savedPassengerKey).remove();
-  firebase.database().ref('cars/' + globalCarKey + '/available').set(true);
+  // firebase.database().ref('cars/' + globalCarKey + '/available').set(true);
   firebase.database().ref('cars/' + globalCarKey + '/climate').remove();
   firebase.database().ref('cars/' + globalCarKey + '/radio').remove();
 
