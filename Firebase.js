@@ -82,7 +82,7 @@ function chooseCar() {
     document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
     document.getElementById("chooseCar").setAttribute("style", "display:none");
     document.getElementById("disconnectCar").setAttribute("style", "display:inline");
-
+    document.getElementById("command").style = "display:inline";
     startSettingsListener(selectedCarKey);
     startSecretListener(selectedCarKey);
 
@@ -138,7 +138,6 @@ function startSecretListener(carKey){
         document.getElementById("command").style = "display:inline";
 
     });
-    document.getElementById("command").style = "display:inline";
 }
 
 function sendFanspeed(direction){
