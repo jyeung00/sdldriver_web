@@ -459,7 +459,7 @@ function disconnectPassenger(){
   document.getElementById("disconnectCar").setAttribute("style", "display:none");
   document.getElementById("findCar").setAttribute("style", "display:inline"); 
   document.getElementById("login").setAttribute("style", "display:inline"); 
-  document.getElementById("command").style = "display:none";
+  document.getElementById("command").setAttribute("style", "display:none");
   // document.getElementById("feedback").innerHTML = "";
 
   document.getElementById("mySelect").innerHTML = "";
