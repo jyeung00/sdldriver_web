@@ -109,8 +109,8 @@ function startSettingsListener(carKey){
     firebase.database().ref('cars/' + carKey + '/settings').on('value', function(snapshot) {
         var settingsDict = snapshot.val();
         if (snapshot.val() != null){
-            document.getElementById("temp").innerHTML = settingsDict["temp"];
-            document.getElementById("fanSpeed").innerHTML = settingsDict["fanSpeed"] / 14;
+            document.getElementById("temp").innerHTML = settingsDict["temp"] + "°C";
+            document.getElementById("fanSpeed").innerHTML = "Fan: " + settingsDict["fanSpeed"] / 14;
             document.getElementById("station").innerHTML = settingsDict["radioStationInt"] + "." + settingsDict["radioStationFrac"];
             
             stationState = parseFloat(settingsDict["radioStationInt"] + settingsDict["radioStationFrac"] / 10) * 10;
@@ -177,7 +177,7 @@ function sendFanspeed(direction){
   }
 
   fanSpeedState = fan;
-  document.getElementById("fanSpeed").innerHTML = fan;
+  document.getElementById("fanSpeed").innerHTML = "Fan: " + fan;
  
   var postData = {};
   postData.fanSpeed = parseFloat(fan);
@@ -228,7 +228,7 @@ function sendTemp(direction){
   }
 
   tempState = temp;
-  document.getElementById("temp").innerHTML = temp;
+  document.getElementById("temp").innerHTML = temp + "°C";
 
   var postData = {};
   postData.temperature = parseFloat(temp);
