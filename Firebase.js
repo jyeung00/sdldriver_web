@@ -16,18 +16,17 @@ var fanSpeedState = 1;
 var tempState = 20;
 var bandState = "FM";
 var stationState = 1011;
+var availableCars = false;
 
 function findCars(){
-  var availableCars = false;
 
 	firebase.database().ref('/cars/').once('value').then(function(snapshot) {
+    availableCars = false;
 	  var cars = snapshot.val();
 
+    var i;
+    
     document.getElementById("selectCars").setAttribute("style", "display:inline");
-		// var selectElement = document.createElement("SELECT");
-  //   	selectElement.setAttribute("id", "mySelect");
-  //   	selectElement.setAttribute("class", "form-control");
-  //   	document.getElementById("selectCars").appendChild(selectElement);
 
     var selectedString = "";
 	  for (var key in cars){
@@ -68,7 +67,11 @@ function findCars(){
          document.getElementById("name").setAttribute("style", "display:none");
       }
       else{
-        document.getElementById("selectCars").innerHTML = "No available rides";
+        document.getElementById("carsHolder").setAttribute("style", "display:none");
+        document.getElementById("chooseCar").setAttribute("style", "display:none");
+        document.getElementById("findCar").setAttribute("style", "display:inline");
+        document.getElementById("name").setAttribute("style", "display:inline");
+
       }
 	});
 }
@@ -94,7 +97,7 @@ function chooseCar() {
         // document.getElementById("feedback").appendChild(document.createElement("br"));
         // document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
         document.getElementById("chooseCar").setAttribute("style", "display:none");
-        document.getElementById("disconnectCar").setAttribute("style", "display:inline");
+        // document.getElementById("disconnectCar").setAttribute("style", "display:inline");
 
         startSettingsListener(selectedCarKey);
         startSecretListener(selectedCarKey);
@@ -477,7 +480,7 @@ function disconnectPassenger(){
   document.getElementById("name").setAttribute("style", "display:inline");
   document.getElementById("carsHolder").setAttribute("style", "display:none");
   document.getElementById("chooseCar").setAttribute("style", "display:none");
-  document.getElementById("disconnectCar").setAttribute("style", "display:none");
+  // document.getElementById("disconnectCar").setAttribute("style", "display:none");
   document.getElementById("findCar").setAttribute("style", "display:inline"); 
   document.getElementById("login").setAttribute("style", "display:inline"); 
   document.getElementById("command").setAttribute("style", "display:none");
