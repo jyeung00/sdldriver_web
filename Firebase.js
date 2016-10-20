@@ -1,8 +1,8 @@
 var config = {
-  apiKey: "AIzaSyAbBuLS3vhjefXrnrAmJDAC09TTVi6T8lo",
-  authDomain: "ford-rsdl.firebaseapp.com",
-  databaseURL: "https://ford-rsdl.firebaseio.com",
-  storageBucket: "ford-rsdl.appspot.com",
+  apiKey: "AIzaSyDMMY64ZePflRsGtT4h9oMp72joQ4dM4LA",
+  authDomain: "ford-translate.firebaseapp.com",
+  databaseURL: "https://ford-translate.firebaseio.com",
+  storageBucket: "ford-translate.appspot.com",
 };
 firebase.initializeApp(config);
 
