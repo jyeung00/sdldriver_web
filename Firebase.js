@@ -76,8 +76,14 @@ function findCars(){
 	});
 }
 
-function chooseCar() {
-    var selectedCarKey = document.getElementById("mySelect").value;
+function chooseCar(myKey = "") {
+    var selectedCarKey = "";
+    if (myKey != ""){
+        selectedCarKey = myKey;
+    }
+    else{
+        selectedCarKey = document.getElementById("mySelect").value;
+    }
     if (selectedCarKey != ""){ 
         var name = document.getElementById("nameInput").value;
         createCookie('carKey', selectedCarKey, 1);
@@ -92,12 +98,7 @@ function chooseCar() {
         updates['/cars/' + selectedCarKey + '/passengers/' + newPassengerKey] = postData;
         
         document.getElementById("login").setAttribute("style", "display:none");
-        // document.getElementById("feedback").appendChild(document.createElement("br"));
-        // document.getElementById("feedback").appendChild(document.createTextNode("Added new passenger, " + name));
-        // document.getElementById("feedback").appendChild(document.createElement("br"));
-        // document.getElementById("feedback").appendChild(document.createTextNode("Waiting for car to accept..."));
         document.getElementById("chooseCar").setAttribute("style", "display:none");
-        // document.getElementById("disconnectCar").setAttribute("style", "display:inline");
 
         startSettingsListener(selectedCarKey);
         startSecretListener(selectedCarKey);
@@ -154,15 +155,50 @@ function startSecretListener(carKey){
         globalSecret = snapshot.val();
         document.getElementById("waiting").setAttribute("style", "display:inline");
         if (globalSecret != null){
-            // document.getElementById("feedback").appendChild(document.createElement("br"));
-            // document.getElementById("feedback").appendChild(document.createTextNode("Car accepted!"));
             document.getElementById("waiting").setAttribute("style", "display:none");
             firebase.database().ref('cars/' + carKey + '/ready').set(true);
             firebase.database().ref('cars/' + carKey + '/available').set(false);
             document.getElementById("command").setAttribute("style", "display:inline");
+            document.getElementById("chat").setAttribute("style", "display:inline");
         }
 
     });
+}
+
+function sendChat(){
+    message = document.getElementById("chatbox").value();
+    document.getElementById("chatbox").setValue("") ;  
+
+    var postData = {};
+    postData.sender = "passenger";
+    postData.text = message;
+    
+    var secretCookie = readCookie('secret');
+    if (!secretCookie){
+      secretCookie = globalSecret;
+    }
+    postData.secret = secretCookie;
+    
+    var carKeyCookie = readCookie('carKey');
+    if (!carKeyCookie){
+      carKeyCookie = globalCarKey;
+    }
+    
+    // Get a key for a new climate command.
+    var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/chat/').push().key;
+
+    // Write the new post's data simultaneously in the posts list and the user's post list.
+    var updates = {};
+    updates['/cars/' + carKeyCookie + '/chat/' + newPostKey] = postData;
+
+    if (firstTime){
+      firstTime = false;
+      firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+      firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+    }
+    
+    return firebase.database().ref().update(updates);
+
 }
 
 function sendFanspeed(direction){
@@ -202,11 +238,6 @@ function sendFanspeed(direction){
   // Write the new post's data simultaneously in the posts list and the user's post list.
   var updates = {};
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  // document.getElementById("feedback").appendChild(document.createElement("br"));
-  // document.getElementById("feedback").appendChild(document.createTextNode("Added new Fanspeed command"));
-
   if (firstTime){
     firstTime = false;
     firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
@@ -253,10 +284,6 @@ function sendTemp(direction){
   // Write the new post's data simultaneously in the posts list and the user's post list.
   var updates = {};
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  // document.getElementById("feedback").appendChild(document.createElement("br"));
-  // document.getElementById("feedback").appendChild(document.createTextNode("Added new Temperature command"));
 
   if (firstTime){
     firstTime = false;
@@ -297,10 +324,6 @@ function sendAC(){
   // Write the new post's data simultaneously in the posts list and the user's post list.
   var updates = {};
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  // document.getElementById("feedback").appendChild(document.createElement("br"));
-  // document.getElementById("feedback").appendChild(document.createTextNode("Set AC " + ACState));
 
   if (firstTime){
     firstTime = false;
@@ -341,11 +364,7 @@ function sendRecirc(){
   // Write the new post's data simultaneously in the posts list and the user's post list.
   var updates = {};
   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-  // document.getElementById("feedback").appendChild(document.createElement("br"));
-  // document.getElementById("feedback").appendChild(document.createTextNode("Set Recirc" + recircState));
-
+ 
   if (firstTime){
     firstTime = false;
     firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
@@ -447,10 +466,6 @@ function sendStation(direction){
       // Write the new post's data simultaneously in the posts list and the user's post list.
       var updates = {};
       updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
-      //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
-
-      // document.getElementById("feedback").appendChild(document.createElement("br"));
-      // document.getElementById("feedback").appendChild(document.createTextNode("Set radio station"));
 
       if (firstTime){
         firstTime = false;
@@ -468,7 +483,6 @@ function disconnectPassenger(){
   firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
   firebase.database().ref('cars/' + globalCarKey + '/ready').remove();
   firebase.database().ref('cars/' + globalCarKey + '/passengers/' + savedPassengerKey).remove();
-  // firebase.database().ref('cars/' + globalCarKey + '/available').set(true);
   firebase.database().ref('cars/' + globalCarKey + '/climate').remove();
   firebase.database().ref('cars/' + globalCarKey + '/radio').remove();
 
@@ -480,11 +494,10 @@ function disconnectPassenger(){
   document.getElementById("name").setAttribute("style", "display:inline");
   document.getElementById("carsHolder").setAttribute("style", "display:none");
   document.getElementById("chooseCar").setAttribute("style", "display:none");
-  // document.getElementById("disconnectCar").setAttribute("style", "display:none");
   document.getElementById("findCar").setAttribute("style", "display:inline"); 
   document.getElementById("login").setAttribute("style", "display:inline"); 
   document.getElementById("command").setAttribute("style", "display:none");
-  // document.getElementById("feedback").innerHTML = "";
+  document.getElementById("chat").setAttribute("style", "display:none");
 
   document.getElementById("mySelect").innerHTML = "";
   document.getElementById("selectCars").setAttribute("style", "display:none");
@@ -499,7 +512,6 @@ function createCookie(name,value,days) {
     }
     else var expires = "";
     document.cookie = name + "=" + value + expires + "; path=/";
-    // console.log("Cookie value for " + name + ": " + document.cookie);
 }
 
 function readCookie(name) {

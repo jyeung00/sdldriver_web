@@ -12,10 +12,27 @@
 	<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
   <script src="Firebase.js"></script>
 
+  <script>
+  function getURLParameter(sParam)
+  {
+      var sPageURL = window.location.search.substring(1);
+      var sURLVariables = sPageURL.split('&');
+      for (var i = 0; i < sURLVariables.length; i++) 
+      {
+          var sParameterName = sURLVariables[i].split('=');
+          if (sParameterName[0] == sParam) 
+          {
+              return sParameterName[1];
+          }
+      }
+  }​
+  </script>
+
   <title> SDL Rider</title>
 </head>
 
-<body>
+<body onload="chooseCar(getURLParameter('carkey'))">
+
 
 <div data-role="page">
     <!-- logo -->
@@ -23,7 +40,9 @@
     <noscript>Please install JavaScript support to use this application!</noscript>
 
     <!-- login section -->
-		<div id="login"> 
+
+
+		<!-- <div id="login"> 
         <div id="name">   
         		<form>
         		Passenger Name: <input type="text" name="name" id="nameInput" placeholder="Name" class="form-control">
@@ -41,15 +60,24 @@
     		  </p>
     		</p>
     </div>
+ -->
+    <div id="chat" style="display:none">
+      <div data-role="header">
+        <h1>Chat with your Driver</h1>
+      </div>
+      <div data-role="main" class="ui-content">
+          <div id="chatlog"></div>
 
-    <div id="waiting" style="display:none">
-        <h3 class="status"> Waiting for driver to accept... </h3>
+          <div>
+              <form action="sendMessage()">
+                <input id="chatbox" value="Chat here">
+                <input id="sendChat" type="submit" value="Send"><br><br>
+              </form>
+          </div>
+      </div>
     </div>
-
-    <!-- commands -->
-		<div id="command" style="display:none">
-      <!-- <button id="disconnectCar" style="display:none" onclick="disconnectPassenger()">Disembark Car</button> -->
-			
+<!-- 
+ 		<div id="command" style="display:none">	
       <div class="ui-grid-a">
     			<div class="ui-block-a"> 
               <div>
@@ -102,10 +130,8 @@
               <div class="ui-block-c">
                   <button id="seekForward" onclick="sendStation(1)" class="tune"><img src="seek-forward.png"></button>
               </div>
-      </div>
-
-    <!-- <div id="feedback" style="display:none"></div> -->
-
+      </div> -->
+    </div>
 </div>
 </body>
 </html>
