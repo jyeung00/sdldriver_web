@@ -203,8 +203,9 @@ function postToChatbox(message, alignment){
 }
 
 function sendChat(){
-    var message = document.getElementById("chatbox").value;
-    document.getElementById("chatbox").setValue("") ;  
+    var chatbox = document.getElementById("chatbox");
+    var message = chatbox.value;
+    chatbox.value = "";
 
     var postData = {};
     postData.sender = "passenger";
