@@ -203,7 +203,7 @@ function postToChatbox(message, alignment){
 }
 
 function sendChat(){
-    message = document.getElementById("chatbox").value;
+    var message = document.getElementById("chatbox").value;
     document.getElementById("chatbox").setValue("") ;  
 
     var postData = {};
