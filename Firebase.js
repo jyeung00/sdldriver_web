@@ -165,6 +165,37 @@ function startSecretListener(carKey){
     });
 }
 
+function loadChat(){
+
+    firebase.database().ref('cars/' + carKey + '/replies').on('value', function(snapshot) {
+        var dict = snapshot.val();
+        if (snapshot.val() != null){
+            if (dict["secret"]){
+                var message = dict["text"];
+
+                postToChatbox(message, "left");
+            }
+        }
+    });
+}
+
+function postToChatbox(message, alignment){
+    if (alignment == "left"){
+        var table = document.getElementById("chatTable");
+        var row = table.insertRow(0);
+        var cell1 = row.insertCell(0);
+        cell1.innerHTML = message;
+        cell1.align = "left";
+    }
+    else{
+        var table = document.getElementById("chatTable");
+        var row = table.insertRow(0);
+        var cell1 = row.insertCell(0);
+        cell1.innerHTML = message;
+        cell1.align = "right";
+    }
+}
+
 function sendChat(){
     message = document.getElementById("chatbox").value();
     document.getElementById("chatbox").setValue("") ;  
@@ -196,7 +227,9 @@ function sendChat(){
       firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
       firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
     }
-    
+
+    postToChatbox(message, "right");
+
     return firebase.database().ref().update(updates);
 
 }
