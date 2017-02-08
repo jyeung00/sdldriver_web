@@ -180,30 +180,25 @@ function startChatListener(carKey){
     // }
 
     firebase.database().ref('cars/' + carKey + '/replies').on('value', function(snapshot) {
-        var dict = snapshot.val();
-        if (snapshot.val() != null){
-            // if (dict["secret"] == secretCookie){
-                var message = dict["text"];
+       snapshot.forEach(function(childSnapshot) {
+        var childKey = childSnapshot.key;
+        var childData = childSnapshot.val();
 
-                postToChatbox(message, "left");
-            // }
-        }
+        postToChatbox(childData["text"], "left");
+      })
     });
+    
 }
 
 function postToChatbox(message, alignment){
-    if (alignment == "left"){
-        var table = document.getElementById("chatTable");
-        var row = table.insertRow(0);
-        var cell1 = row.insertCell(0);
-        cell1.innerHTML = message;
+    var table = document.getElementById("chatTable");
+    var row = table.insertRow(table.rows.length);
+    var cell1 = row.insertCell(0);
+    cell1.innerHTML = message;
+    if (alignment == "left"){    
         cell1.align = "left";
     }
     else{
-        var table = document.getElementById("chatTable");
-        var row = table.insertRow(0);
-        var cell1 = row.insertCell(0);
-        cell1.innerHTML = message;
         cell1.align = "right";
     }
 }
@@ -247,138 +242,138 @@ function sendChat(){
 
 }
 
-function sendFanspeed(direction){
+// function sendFanspeed(direction){
  
-  var fan;
+//   var fan;
 
-  if (direction == 1 && fanSpeedState < 7){
-    fan = fanSpeedState + 1
-  }
-  else if (direction == 0 && fanSpeedState > 1){
-    fan = fanSpeedState - 1
-  }
-  else{
-    return;
-  }
+//   if (direction == 1 && fanSpeedState < 7){
+//     fan = fanSpeedState + 1
+//   }
+//   else if (direction == 0 && fanSpeedState > 1){
+//     fan = fanSpeedState - 1
+//   }
+//   else{
+//     return;
+//   }
 
-  fanSpeedState = fan;
-  document.getElementById("fanSpeed").innerHTML = "Fan: " + fan;
+//   fanSpeedState = fan;
+//   document.getElementById("fanSpeed").innerHTML = "Fan: " + fan;
  
-  var postData = {};
-  postData.fanSpeed = parseFloat(fan);
+//   var postData = {};
+//   postData.fanSpeed = parseFloat(fan);
  
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
+//   var secretCookie = readCookie('secret');
+//   if (!secretCookie){
+//     secretCookie = globalSecret;
+//   }
+//   postData.secret = secretCookie;
  
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
+//   var carKeyCookie = readCookie('carKey');
+//   if (!carKeyCookie){
+//     carKeyCookie = globalCarKey;
+//   }
  
-  // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
+//   // Get a key for a new climate command.
+//   var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
 
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
+//   // Write the new post's data simultaneously in the posts list and the user's post list.
+//   var updates = {};
+//   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
+//   if (firstTime){
+//     firstTime = false;
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+//   }
 
-  return firebase.database().ref().update(updates);
-}
+//   return firebase.database().ref().update(updates);
+// }
 
-function sendTemp(direction){
+// function sendTemp(direction){
  
-  var temp;
+//   var temp;
 
-  if (direction == 1 && tempState < 30){
-    temp = tempState + 0.5;
-  }
-  else if (direction == 0 && tempState > 16){
-    temp = tempState - 0.5;
-  }
-  else{
-    return;
-  }
+//   if (direction == 1 && tempState < 30){
+//     temp = tempState + 0.5;
+//   }
+//   else if (direction == 0 && tempState > 16){
+//     temp = tempState - 0.5;
+//   }
+//   else{
+//     return;
+//   }
 
-  tempState = temp;
-  document.getElementById("temp").innerHTML = temp + "°C";
+//   tempState = temp;
+//   document.getElementById("temp").innerHTML = temp + "°C";
 
-  var postData = {};
-  postData.temperature = parseFloat(temp);
+//   var postData = {};
+//   postData.temperature = parseFloat(temp);
   
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
+//   var secretCookie = readCookie('secret');
+//   if (!secretCookie){
+//     secretCookie = globalSecret;
+//   }
+//   postData.secret = secretCookie;
   
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
+//   var carKeyCookie = readCookie('carKey');
+//   if (!carKeyCookie){
+//     carKeyCookie = globalCarKey;
+//   }
   
-  // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
+//   // Get a key for a new climate command.
+//   var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
 
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
+//   // Write the new post's data simultaneously in the posts list and the user's post list.
+//   var updates = {};
+//   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
 
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
+//   if (firstTime){
+//     firstTime = false;
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+//   }
         
-  return firebase.database().ref().update(updates);
-}
+//   return firebase.database().ref().update(updates);
+// }
 
 
-function sendAC(){
-  if (ACState == true){
-    ACState = false;
-    $('.btnAC').removeClass("active");  
-  }
-  else{
-    ACState = true;
-     $('.btnAC').addClass("active");
-  }
+// function sendAC(){
+//   if (ACState == true){
+//     ACState = false;
+//     $('.btnAC').removeClass("active");  
+//   }
+//   else{
+//     ACState = true;
+//      $('.btnAC').addClass("active");
+//   }
 
-  var postData = {};
-  postData.acEnable = ACState;
+//   var postData = {};
+//   postData.acEnable = ACState;
   
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
+//   var secretCookie = readCookie('secret');
+//   if (!secretCookie){
+//     secretCookie = globalSecret;
+//   }
+//   postData.secret = secretCookie;
   
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-    // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
+//   var carKeyCookie = readCookie('carKey');
+//   if (!carKeyCookie){
+//     carKeyCookie = globalCarKey;
+//   }
+//     // Get a key for a new climate command.
+//   var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
 
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
+//   // Write the new post's data simultaneously in the posts list and the user's post list.
+//   var updates = {};
+//   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
 
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
+//   if (firstTime){
+//     firstTime = false;
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+//   }
         
-  return firebase.database().ref().update(updates);
-}
+//   return firebase.database().ref().update(updates);
+// }
 
 
 // function sendRecirc(){
