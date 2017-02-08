@@ -174,19 +174,19 @@ function startSecretListener(carKey){
 
 function startChatListener(carKey){
 
-    var secretCookie = readCookie('secret');
-    if (!secretCookie){
-      secretCookie = globalSecret;
-    }
+    // var secretCookie = readCookie('secret');
+    // if (!secretCookie){
+    //   secretCookie = globalSecret;
+    // }
 
     firebase.database().ref('cars/' + carKey + '/replies').on('value', function(snapshot) {
         var dict = snapshot.val();
         if (snapshot.val() != null){
-            if (dict["secret"] == secretCookie){
+            // if (dict["secret"] == secretCookie){
                 var message = dict["text"];
 
                 postToChatbox(message, "left");
-            }
+            // }
         }
     });
 }
