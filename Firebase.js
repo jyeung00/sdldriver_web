@@ -85,7 +85,13 @@ function chooseCar(myKey = "") {
         selectedCarKey = document.getElementById("mySelect").value;
     }
     if (selectedCarKey != ""){ 
-        var name = document.getElementById("nameInput").value;
+        if (document.getElementById("nameInput") == true){
+          var name = document.getElementById("nameeInput").value;
+        }
+        else{
+          var name = "passenger";
+        }
+
         createCookie('carKey', selectedCarKey, 1);
         globalCarKey = selectedCarKey;
 
@@ -97,8 +103,8 @@ function chooseCar(myKey = "") {
         var updates = {};
         updates['/cars/' + selectedCarKey + '/passengers/' + newPassengerKey] = postData;
         
-        document.getElementById("login").setAttribute("style", "display:none");
-        document.getElementById("chooseCar").setAttribute("style", "display:none");
+        // document.getElementById("login").setAttribute("style", "display:none");
+        // document.getElementById("chooseCar").setAttribute("style", "display:none");
 
         startSettingsListener(selectedCarKey);
         startSecretListener(selectedCarKey);
@@ -153,7 +159,7 @@ function startSecretListener(carKey){
 
         createCookie("secret", snapshot.val(), 1);
         globalSecret = snapshot.val();
-        document.getElementById("waiting").setAttribute("style", "display:inline");
+        // document.getElementById("waiting").setAttribute("style", "display:inline");
         if (globalSecret != null){
             document.getElementById("waiting").setAttribute("style", "display:none");
             firebase.database().ref('cars/' + carKey + '/ready').set(true);
@@ -368,148 +374,148 @@ function sendAC(){
 }
 
 
-function sendRecirc(){
-  if (recircState == true){
-    recircState = false;
-    $('.btnRecirc').removeClass("active");  
-  }
-  else{
-    recircState = true;
-     $('.btnRecirc').addClass("active");
-  }
+// function sendRecirc(){
+//   if (recircState == true){
+//     recircState = false;
+//     $('.btnRecirc').removeClass("active");  
+//   }
+//   else{
+//     recircState = true;
+//      $('.btnRecirc').addClass("active");
+//   }
 
-  var postData = {};
-  postData.recirc = recircState;
+//   var postData = {};
+//   postData.recirc = recircState;
   
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
+//   var secretCookie = readCookie('secret');
+//   if (!secretCookie){
+//     secretCookie = globalSecret;
+//   }
+//   postData.secret = secretCookie;
   
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
-    // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
+//   var carKeyCookie = readCookie('carKey');
+//   if (!carKeyCookie){
+//     carKeyCookie = globalCarKey;
+//   }
+//     // Get a key for a new climate command.
+//   var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/climate/').push().key;
 
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
+//   // Write the new post's data simultaneously in the posts list and the user's post list.
+//   var updates = {};
+//   updates['/cars/' + carKeyCookie + '/climate/' + newPostKey] = postData;
  
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
+//   if (firstTime){
+//     firstTime = false;
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+//   }
         
-  return firebase.database().ref().update(updates);
-}
+//   return firebase.database().ref().update(updates);
+// }
 
 
-function sendBand(i){
-  $('.btnBand').removeClass("active");
+// function sendBand(i){
+//   $('.btnBand').removeClass("active");
 
-  var band = "FM";
+//   var band = "FM";
 
-  if (i == 1){
-    band = "AM";
-    $("#btnAM").addClass("active");
-  }
-  else if (i == 2){
-    band = "FM";
-    $("#btnFM").addClass("active");
-  }
-  else if (i == 3){
-    band = "XM";
-    $("#btnXM").addClass("active");
-  }
+//   if (i == 1){
+//     band = "AM";
+//     $("#btnAM").addClass("active");
+//   }
+//   else if (i == 2){
+//     band = "FM";
+//     $("#btnFM").addClass("active");
+//   }
+//   else if (i == 3){
+//     band = "XM";
+//     $("#btnXM").addClass("active");
+//   }
 
 
-  var postData = {};
-  postData.band = band;
+//   var postData = {};
+//   postData.band = band;
   
-  var secretCookie = readCookie('secret');
-  if (!secretCookie){
-    secretCookie = globalSecret;
-  }
-  postData.secret = secretCookie;
+//   var secretCookie = readCookie('secret');
+//   if (!secretCookie){
+//     secretCookie = globalSecret;
+//   }
+//   postData.secret = secretCookie;
   
-  var carKeyCookie = readCookie('carKey');
-  if (!carKeyCookie){
-    carKeyCookie = globalCarKey;
-  }
+//   var carKeyCookie = readCookie('carKey');
+//   if (!carKeyCookie){
+//     carKeyCookie = globalCarKey;
+//   }
   
-  // Get a key for a new climate command.
-  var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/radio/').push().key;
+//   // Get a key for a new climate command.
+//   var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/radio/').push().key;
 
-  // Write the new post's data simultaneously in the posts list and the user's post list.
-  var updates = {};
-  updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
-  //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+//   // Write the new post's data simultaneously in the posts list and the user's post list.
+//   var updates = {};
+//   updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
+//   //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
 
-  // document.getElementById("feedback").appendChild(document.createElement("br"));
-  // document.getElementById("feedback").appendChild(document.createTextNode("Set radio band"));
+//   // document.getElementById("feedback").appendChild(document.createElement("br"));
+//   // document.getElementById("feedback").appendChild(document.createTextNode("Set radio band"));
 
-  if (firstTime){
-    firstTime = false;
-    firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-    firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-  }
+//   if (firstTime){
+//     firstTime = false;
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+//     firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+//   }
 
-  return firebase.database().ref().update(updates);
-}
+//   return firebase.database().ref().update(updates);
+// }
 
 
-function sendStation(direction){
+// function sendStation(direction){
 
-   if (bandState == "FM"){
-      var station;
-      if (direction == 1 && stationState < 1080){
-        station = stationState + 2;
-      }
-      else if (direction == 0 && stationState > 880){
-        station = stationState - 2;
-      }
-      else{
-        station = direction * 10;
-      }
-      stationState = station;
+//    if (bandState == "FM"){
+//       var station;
+//       if (direction == 1 && stationState < 1080){
+//         station = stationState + 2;
+//       }
+//       else if (direction == 0 && stationState > 880){
+//         station = stationState - 2;
+//       }
+//       else{
+//         station = direction * 10;
+//       }
+//       stationState = station;
 
-      document.getElementById("station").innerHTML = station / 10;
+//       document.getElementById("station").innerHTML = station / 10;
       
-      var postData = {};
-      postData.station = (station / 10).toString();
+//       var postData = {};
+//       postData.station = (station / 10).toString();
       
-      var secretCookie = readCookie('secret');
-      if (!secretCookie){
-        secretCookie = globalSecret;
-      }
-      postData.secret = secretCookie;
+//       var secretCookie = readCookie('secret');
+//       if (!secretCookie){
+//         secretCookie = globalSecret;
+//       }
+//       postData.secret = secretCookie;
       
-      var carKeyCookie = readCookie('carKey');
-      if (!carKeyCookie){
-        carKeyCookie = globalCarKey;
-      }
+//       var carKeyCookie = readCookie('carKey');
+//       if (!carKeyCookie){
+//         carKeyCookie = globalCarKey;
+//       }
       
-      // Get a key for a new climate command.
-      var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/radio/').push().key;
+//       // Get a key for a new climate command.
+//       var newPostKey = firebase.database().ref().child('cars/' + carKeyCookie + '/radio/').push().key;
 
-      // Write the new post's data simultaneously in the posts list and the user's post list.
-      var updates = {};
-      updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
+//       // Write the new post's data simultaneously in the posts list and the user's post list.
+//       var updates = {};
+//       updates['/cars/' + carKeyCookie + '/radio/' + newPostKey] = postData;
 
-      if (firstTime){
-        firstTime = false;
-        firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
-        firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
-      }
+//       if (firstTime){
+//         firstTime = false;
+//         firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');
+//         firebase.database().ref('cars/' + globalCarKey + '/secret').remove();
+//       }
 
-      return firebase.database().ref().update(updates);
+//       return firebase.database().ref().update(updates);
 
-    }
-  }
+//     }
+//   }
   
 function disconnectPassenger(){
   firebase.database().ref('cars/' + globalCarKey + '/secret').off('value');

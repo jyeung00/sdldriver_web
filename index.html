@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -12,10 +13,11 @@
 	<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
   <script src="Firebase.js"></script>
 
-  <script type="text/JavaScript">
-  function getURLParameter(sParam)
-  {
-      var sPageURL = window.location.search.substring(1);
+  <title> SDL Rider</title>
+<script type="text/javascript">
+        function codeAddress(sParam) {
+            // alert('ok');
+            var sPageURL = window.location.search.substring(1);
       var sURLVariables = sPageURL.split('&');
       for (var i = 0; i < sURLVariables.length; i++) 
       {
@@ -25,19 +27,13 @@
               return sParameterName[1];
           }
       }
-  }​
-
-  function loadStuff(){
-      param = getURLParameter('carkey');
-      chooseCar(param
-  }
-  </script>
-
-  <title> SDL Rider</title>
+        }
+        window.onload = chooseCar(codeAddress('carkey'));
+        </script>
+  
 </head>
 
-<body onload="loadStuff()">
-
+<body>
 
 <div data-role="page">
     <!-- logo -->
@@ -66,7 +62,7 @@
     		</p>
     </div>
  -->
-    <div id="chat" style="display:none">
+    <div id="chat">
       <div data-role="header">
         <h1>Chat with your Driver</h1>
       </div>
