@@ -173,7 +173,12 @@ function startSecretListener(carKey){
 
 function loadChat(){
 
-    firebase.database().ref('cars/' + carKey + '/replies').on('value', function(snapshot) {
+    var carKeyCookie = readCookie('carKey');
+    if (!carKeyCookie){
+      carKeyCookie = globalCarKey;
+    }
+
+    firebase.database().ref('cars/' + carKeyCookie + '/replies').on('value', function(snapshot) {
         var dict = snapshot.val();
         if (snapshot.val() != null){
             if (dict["secret"]){
